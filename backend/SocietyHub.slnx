@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="SocietyHub.API/SocietyHub.API.csproj" />
+  <Project Path="SocietyHub.Application/SocietyHub.Application.csproj" />
+  <Project Path="SocietyHub.Domain/SocietyHub.Domain.csproj" />
+  <Project Path="SocietyHub.Infrastructure/SocietyHub.Infrastructure.csproj" />
+</Solution>
