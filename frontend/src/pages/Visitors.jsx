@@ -18,7 +18,6 @@ function Visitors() {
   const [error, setError] = useState("");
   const [generatingQr, setGeneratingQr] = useState(null);
 
-  // Load current user's visitors
   const loadVisitors = async () => {
     try {
       setLoadingVisitors(true);
@@ -38,12 +37,10 @@ function Visitors() {
     }
   };
 
-  // Load visitors when page opens
   useEffect(() => {
     loadVisitors();
   }, []);
 
-  // Create visitor
   const createVisitor = async (event) => {
     event.preventDefault();
 
@@ -62,7 +59,9 @@ function Visitors() {
         visitorName,
         phoneNumber,
         flatId: FLAT_ID,
-        expectedArrival: new Date(expectedArrival).toISOString(),
+        expectedArrival: new Date(
+          expectedArrival
+        ).toISOString(),
       });
 
       setMessage("Visitor request created successfully.");
@@ -71,7 +70,6 @@ function Visitors() {
       setPhoneNumber("");
       setExpectedArrival("");
 
-      // Refresh visitor list
       await loadVisitors();
     } catch (error) {
       console.error("Visitor creation failed:", error);
@@ -86,54 +84,54 @@ function Visitors() {
   };
 
   const updateVisitorApproval = async (visitorId, approved) => {
-  setMessage("");
-  setError("");
+    setMessage("");
+    setError("");
 
-  try {
-    await api.put(`/Visitor/${visitorId}/approval`, {
-      approved,
-    });
+    try {
+      await api.put(`/Visitor/${visitorId}/approval`, {
+        approved,
+      });
 
-    setMessage(
-      approved
-        ? "Visitor approved successfully."
-        : "Visitor rejected successfully."
-    );
+      setMessage(
+        approved
+          ? "Visitor approved successfully."
+          : "Visitor rejected successfully."
+      );
 
-    await loadVisitors();
-  } catch (error) {
-    console.error("Visitor approval failed:", error);
+      await loadVisitors();
+    } catch (error) {
+      console.error("Visitor approval failed:", error);
 
-    setError(
-      error.response?.data?.message ||
-        "Failed to update visitor status."
-    );
-  }
-};
+      setError(
+        error.response?.data?.message ||
+          "Failed to update visitor status."
+      );
+    }
+  };
 
-const generateQrCode = async (visitorId) => {
-  setMessage("");
-  setError("");
+  const generateQrCode = async (visitorId) => {
+    setMessage("");
+    setError("");
 
-  try {
-    setGeneratingQr(visitorId);
+    try {
+      setGeneratingQr(visitorId);
 
-    await api.post(`/Visitor/${visitorId}/qr`);
+      await api.post(`/Visitor/${visitorId}/qr`);
 
-    setMessage("QR code generated successfully.");
+      setMessage("QR code generated successfully.");
 
-    await loadVisitors();
-  } catch (error) {
-    console.error("QR generation failed:", error);
+      await loadVisitors();
+    } catch (error) {
+      console.error("QR generation failed:", error);
 
-    setError(
-      error.response?.data?.message ||
-        "Failed to generate QR code."
-    );
-  } finally {
-    setGeneratingQr(null);
-  }
-};
+      setError(
+        error.response?.data?.message ||
+          "Failed to generate QR code."
+      );
+    } finally {
+      setGeneratingQr(null);
+    }
+  };
 
   const getStatusLabel = (status) => {
     switch (status) {
@@ -152,200 +150,449 @@ const generateQrCode = async (visitorId) => {
     }
   };
 
+  const pendingCount = visitors.filter(
+    (visitor) => visitor.status === 1
+  ).length;
+
+  const approvedCount = visitors.filter(
+    (visitor) => visitor.status === 2
+  ).length;
+
+  const completedCount = visitors.filter(
+    (visitor) =>
+      visitor.status === 4 ||
+      visitor.status === 5
+  ).length;
+
   return (
-    <div className="module-page">
+    <div className="module-page visitors-page">
 
       {/* Header */}
-      <div className="module-header">
-        <Link to="/dashboard" className="back-link">
+      <div className="module-header visitors-header">
+
+        <Link
+          to="/dashboard"
+          className="back-link"
+        >
           ← Dashboard
         </Link>
 
-        <h1>Visitor Management</h1>
+        <div className="visitors-header-content">
 
-        <p>
-          Create visitor requests and manage visitor approvals.
-        </p>
+          <div>
+            <p className="module-eyebrow">
+              SOCIETY ACCESS
+            </p>
+
+            <h1>Visitor Management</h1>
+
+            <p className="module-description">
+              Manage guest requests, approvals and secure
+              visitor passes from one place.
+            </p>
+          </div>
+
+          <div className="visitor-header-icon">
+            👥
+          </div>
+
+        </div>
+
       </div>
 
       {/* Messages */}
       {message && (
-        <div className="success-message">
+        <div className="success-message visitors-message">
+          <span>✓</span>
           {message}
         </div>
       )}
 
       {error && (
-        <div className="error-message">
+        <div className="error-message visitors-message">
+          <span>!</span>
           {error}
         </div>
       )}
 
-      {/* Add Visitor */}
-      <div className="module-card">
+      {/* Statistics */}
+      <div className="visitor-stats">
 
-        <div className="card-title-row">
+        <div className="visitor-stat-card">
+          <div className="visitor-stat-icon blue">
+            👥
+          </div>
+
           <div>
-            <h2>Add Visitor</h2>
-            <p>
-              Create a visitor request for your flat.
-            </p>
+            <span>Total Visitors</span>
+            <strong>{visitors.length}</strong>
           </div>
         </div>
 
-        <form onSubmit={createVisitor} className="module-form">
+        <div className="visitor-stat-card">
+          <div className="visitor-stat-icon orange">
+            ⏳
+          </div>
 
-          <div className="form-group">
-            <label>Visitor Name</label>
+          <div>
+            <span>Pending</span>
+            <strong>{pendingCount}</strong>
+          </div>
+        </div>
+
+        <div className="visitor-stat-card">
+          <div className="visitor-stat-icon green">
+            ✓
+          </div>
+
+          <div>
+            <span>Approved</span>
+            <strong>{approvedCount}</strong>
+          </div>
+        </div>
+
+        <div className="visitor-stat-card">
+          <div className="visitor-stat-icon purple">
+            ↗
+          </div>
+
+          <div>
+            <span>Completed</span>
+            <strong>{completedCount}</strong>
+          </div>
+        </div>
+
+      </div>
+
+      {/* Create Visitor */}
+      <div className="module-card visitor-create-card">
+
+        <div className="visitor-card-heading">
+
+          <div className="visitor-section-icon blue">
+            +
+          </div>
+
+          <div>
+            <h2>Add a visitor</h2>
+
+            <p>
+              Create a visitor request before your guest
+              arrives.
+            </p>
+          </div>
+
+        </div>
+
+        <form
+          onSubmit={createVisitor}
+          className="visitor-form"
+        >
+
+          <div className="visitor-form-field">
+
+            <label htmlFor="visitorName">
+              Visitor name
+            </label>
 
             <input
+              id="visitorName"
               type="text"
               value={visitorName}
-              onChange={(e) => setVisitorName(e.target.value)}
-              placeholder="Enter visitor name"
+              onChange={(event) =>
+                setVisitorName(event.target.value)
+              }
+              placeholder="e.g. Rahul Sharma"
             />
+
           </div>
 
-          <div className="form-group">
-            <label>Phone Number</label>
+          <div className="visitor-form-field">
+
+            <label htmlFor="phoneNumber">
+              Phone number
+            </label>
 
             <input
+              id="phoneNumber"
               type="tel"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="Enter phone number"
+              onChange={(event) =>
+                setPhoneNumber(event.target.value)
+              }
+              placeholder="e.g. 9876543210"
             />
+
           </div>
 
-          <div className="form-group">
-            <label>Expected Arrival</label>
+          <div className="visitor-form-field">
+
+            <label htmlFor="expectedArrival">
+              Expected arrival
+            </label>
 
             <input
+              id="expectedArrival"
               type="datetime-local"
               value={expectedArrival}
-              onChange={(e) =>
-                setExpectedArrival(e.target.value)
+              onChange={(event) =>
+                setExpectedArrival(event.target.value)
               }
             />
+
           </div>
 
           <button
             type="submit"
-            className="primary-button"
+            className="visitor-create-button"
             disabled={loading}
           >
-            {loading
-              ? "Creating..."
-              : "Create Visitor Request"}
+            {loading ? (
+              <>
+                <span className="button-spinner"></span>
+                Creating...
+              </>
+            ) : (
+              <>
+                Create request
+                <span>→</span>
+              </>
+            )}
           </button>
 
         </form>
+
       </div>
 
-      {/* My Visitors */}
-      <div className="module-card">
+      {/* Visitor Requests */}
+      <div className="module-card visitor-requests-card">
 
-        <div className="card-title-row">
-          <h2>My Visitor Requests</h2>
+        <div className="visitor-requests-header">
+
+          <div>
+            <p className="module-eyebrow">
+              GUEST ACTIVITY
+            </p>
+
+            <h2>Visitor requests</h2>
+
+            <p>
+              Review and manage your guest access requests.
+            </p>
+          </div>
 
           <span className="count-badge">
             {visitors.length}
           </span>
+
         </div>
 
         {loadingVisitors ? (
-          <p>Loading visitors...</p>
-        ) : visitors.length === 0 ? (
-          <div className="empty-state">
-            <p>No visitor requests yet.</p>
+
+          <div className="visitor-loading">
+            <span className="button-spinner"></span>
+            <p>Loading visitor requests...</p>
           </div>
+
+        ) : visitors.length === 0 ? (
+
+          <div className="visitor-empty">
+
+            <div className="visitor-empty-icon">
+              👥
+            </div>
+
+            <h3>No visitors yet</h3>
+
+            <p>
+              Create your first visitor request using
+              the form above.
+            </p>
+
+          </div>
+
         ) : (
+
           <div className="visitor-list">
 
             {visitors.map((visitor) => (
+
               <div
                 className="visitor-item"
                 key={visitor.id}
               >
 
-                <div>
-                  <h3>{visitor.visitorName}</h3>
+                <div className="visitor-main">
 
-                  <p>
-                    📞 {visitor.phoneNumber}
-                  </p>
+                  <div className="visitor-avatar">
+                    {visitor.visitorName
+                      ?.charAt(0)
+                      ?.toUpperCase() || "V"}
+                  </div>
 
-                  <p>
-                    Expected:{" "}
-                    {new Date(
-                      visitor.expectedArrival
-                    ).toLocaleString()}
-                  </p>
+                  <div className="visitor-details">
+
+                    <div className="visitor-name-row">
+
+                      <h3>
+                        {visitor.visitorName}
+                      </h3>
+
+                      <span
+                        className={`visitor-status visitor-status-${visitor.status}`}
+                      >
+                        {getStatusLabel(
+                          visitor.status
+                        )}
+                      </span>
+
+                    </div>
+
+                    <p>
+                      <span>📞</span>
+                      {visitor.phoneNumber}
+                    </p>
+
+                    <p>
+                      <span>🕐</span>
+                      Expected{" "}
+                      {new Date(
+                        visitor.expectedArrival
+                      ).toLocaleString()}
+                    </p>
+
+                  </div>
+
                 </div>
 
                 <div className="visitor-actions">
 
-  <span
-    className={`visitor-status visitor-status-${visitor.status}`}
-  >
-    {getStatusLabel(visitor.status)}
-  </span>
+                  {visitor.status === 1 && (
+                    <div className="visitor-buttons">
 
-  {visitor.status === 1 && (
-    <div className="visitor-buttons">
+                      <button
+                        className="approve-button"
+                        onClick={() =>
+                          updateVisitorApproval(
+                            visitor.id,
+                            true
+                          )
+                        }
+                      >
+                        ✓ Approve
+                      </button>
 
-      <button
-        className="approve-button"
-        onClick={() =>
-          updateVisitorApproval(visitor.id, true)
-        }
-      >
-        Approve
-      </button>
+                      <button
+                        className="reject-button"
+                        onClick={() =>
+                          updateVisitorApproval(
+                            visitor.id,
+                            false
+                          )
+                        }
+                      >
+                        Reject
+                      </button>
 
-      <button
-        className="reject-button"
-        onClick={() =>
-          updateVisitorApproval(visitor.id, false)
-        }
-      >
-        Reject
-      </button>
+                    </div>
+                  )}
 
-    </div>
-  )}
+                  {visitor.status === 2 &&
+                    !visitor.qrCode && (
+                      <button
+                        className="qr-button"
+                        onClick={() =>
+                          generateQrCode(
+                            visitor.id
+                          )
+                        }
+                        disabled={
+                          generatingQr ===
+                          visitor.id
+                        }
+                      >
+                        {generatingQr ===
+                        visitor.id
+                          ? "Generating..."
+                          : "Generate QR Pass"}
+                      </button>
+                    )}
 
-  {visitor.status === 2 && !visitor.qrCode && (
-    <button
-      className="qr-button"
-      onClick={() => generateQrCode(visitor.id)}
-      disabled={generatingQr === visitor.id}
-    >
-      {generatingQr === visitor.id
-        ? "Generating..."
-        : "Generate QR"}
-    </button>
-  )}
+                </div>
 
-  {visitor.qrCode && (
-    <div className="qr-token">
-  <strong>Visitor QR Pass</strong>
+                {/* QR Pass */}
+                {visitor.qrCode && (
+                  <div className="visitor-qr-pass">
 
-  <QRCodeCanvas
-    value={visitor.qrCode}
-    size={160}
-  />
+                    <div className="qr-pass-header">
 
-  <code>{visitor.qrCode}</code>
-</div>
-  )}
+                      <div>
+                        <p className="module-eyebrow">
+                          SECURE ACCESS
+                        </p>
 
-</div>
+                        <h4>
+                          Visitor QR Pass
+                        </h4>
+
+                        <p>
+                          Show this QR code at the
+                          society entrance.
+                        </p>
+                      </div>
+
+                      <span className="qr-active-badge">
+                        Active
+                      </span>
+
+                    </div>
+
+                    <div className="qr-pass-content">
+
+                      <div className="qr-image-wrapper">
+                        <QRCodeCanvas
+                          value={visitor.qrCode}
+                          size={180}
+                        />
+                      </div>
+
+                      <div className="qr-pass-info">
+
+                        <span>
+                          VISITOR
+                        </span>
+
+                        <strong>
+                          {visitor.visitorName}
+                        </strong>
+
+                        <span>
+                          EXPECTED ARRIVAL
+                        </span>
+
+                        <strong>
+                          {new Date(
+                            visitor.expectedArrival
+                          ).toLocaleString()}
+                        </strong>
+
+                        <small>
+                          Secure visitor token
+                        </small>
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                )}
 
               </div>
+
             ))}
 
           </div>
+
         )}
 
       </div>

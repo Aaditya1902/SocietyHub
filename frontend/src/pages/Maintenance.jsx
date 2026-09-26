@@ -12,7 +12,6 @@ function Maintenance() {
       setLoading(true);
       setError("");
 
-      
       const response = await api.get("/MaintenanceBill/my");
 
       setBills(response.data);
@@ -21,7 +20,7 @@ function Maintenance() {
 
       setError(
         error.response?.data?.message ||
-        "Failed to load maintenance bills."
+          "Failed to load maintenance bills."
       );
     } finally {
       setLoading(false);
@@ -36,12 +35,12 @@ function Maintenance() {
   const pendingBills = bills.filter((bill) => bill.status === 1);
 
   const totalPaid = paidBills.reduce(
-    (total, bill) => total + bill.amount,
+    (total, bill) => total + Number(bill.amount || 0),
     0
   );
 
   const totalPending = pendingBills.reduce(
-    (total, bill) => total + bill.amount,
+    (total, bill) => total + Number(bill.amount || 0),
     0
   );
 
@@ -56,67 +55,203 @@ function Maintenance() {
     }
   };
 
-  return (
-    <div className="module-page">
+  const formatAmount = (amount) =>
+    Number(amount || 0).toLocaleString("en-IN");
 
+  const formatDate = (date) =>
+    new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+
+  const nextPendingBill = [...pendingBills].sort(
+    (a, b) =>
+      new Date(a.dueDate) - new Date(b.dueDate)
+  )[0];
+
+  return (
+    <div className="module-page maintenance-page">
+
+      {/* HEADER */}
       <div className="module-header">
 
         <Link to="/dashboard" className="back-link">
           ← Dashboard
         </Link>
 
-        <h1>Maintenance Bills</h1>
+        <div className="maintenance-header-content">
 
-        <p>
-          View and track your society maintenance payments.
-        </p>
+          <div>
+            <p className="module-eyebrow">
+              SOCIETY FINANCE
+            </p>
+
+            <h1>Maintenance</h1>
+
+            <p className="module-description">
+              View your society maintenance bills and
+              track payment status in one place.
+            </p>
+          </div>
+
+          <div className="maintenance-header-icon">
+            ₹
+          </div>
+
+        </div>
 
       </div>
 
       {/* SUMMARY */}
+      <div className="maintenance-stats">
 
-      <div className="billing-summary">
+        <div className="maintenance-stat-card">
 
-        <div className="billing-stat">
-          <span>Total Bills</span>
-          <strong>{bills.length}</strong>
+          <div className="maintenance-stat-icon blue">
+            #
+          </div>
+
+          <div>
+            <span>Total Bills</span>
+            <strong>{bills.length}</strong>
+          </div>
+
         </div>
 
-        <div className="billing-stat">
-          <span>Pending Amount</span>
-          <strong>₹{totalPending}</strong>
+        <div className="maintenance-stat-card">
+
+          <div className="maintenance-stat-icon orange">
+            ₹
+          </div>
+
+          <div>
+            <span>Pending Amount</span>
+            <strong>
+              ₹{formatAmount(totalPending)}
+            </strong>
+          </div>
+
         </div>
 
-        <div className="billing-stat">
-          <span>Paid Amount</span>
-          <strong>₹{totalPaid}</strong>
+        <div className="maintenance-stat-card">
+
+          <div className="maintenance-stat-icon green">
+            ✓
+          </div>
+
+          <div>
+            <span>Paid Amount</span>
+            <strong>
+              ₹{formatAmount(totalPaid)}
+            </strong>
+          </div>
+
+        </div>
+
+        <div className="maintenance-stat-card">
+
+          <div className="maintenance-stat-icon purple">
+            ✓
+          </div>
+
+          <div>
+            <span>Paid Bills</span>
+            <strong>{paidBills.length}</strong>
+          </div>
+
         </div>
 
       </div>
 
+      {/* NEXT PAYMENT */}
+      {nextPendingBill && (
+        <div className="maintenance-alert">
+
+          <div className="maintenance-alert-icon">
+            ₹
+          </div>
+
+          <div className="maintenance-alert-content">
+
+            <span>PAYMENT DUE</span>
+
+            <strong>
+              ₹{formatAmount(nextPendingBill.amount)}
+            </strong>
+
+            <p>
+              {nextPendingBill.billingMonth} maintenance
+              bill is due on{" "}
+              {formatDate(nextPendingBill.dueDate)}.
+            </p>
+
+          </div>
+
+          <span className="maintenance-alert-status">
+            Pending
+          </span>
+
+        </div>
+      )}
+
       {/* BILLS */}
+      <div className="module-card maintenance-bills-card">
 
-      <div className="module-card">
+        <div className="maintenance-list-header">
 
-        <div className="card-title-row">
-          <h2>My Bills</h2>
+          <div>
+            <p className="module-eyebrow">
+              PAYMENT HISTORY
+            </p>
+
+            <h2>My maintenance bills</h2>
+
+            <p>
+              Review your current and previous maintenance
+              payments.
+            </p>
+          </div>
 
           <span className="count-badge">
             {bills.length}
           </span>
+
         </div>
 
         {loading ? (
-          <p>Loading maintenance bills...</p>
+
+          <div className="maintenance-loading">
+            <span className="button-spinner"></span>
+            <p>Loading maintenance bills...</p>
+          </div>
+
         ) : error ? (
-          <div className="error-message">
+
+          <div className="maintenance-error">
+            <span>!</span>
             {error}
           </div>
+
         ) : bills.length === 0 ? (
-          <div className="empty-state">
-            <p>No maintenance bills found.</p>
+
+          <div className="maintenance-empty">
+
+            <div className="maintenance-empty-icon">
+              ₹
+            </div>
+
+            <h3>No maintenance bills</h3>
+
+            <p>
+              Your maintenance bills will appear here
+              once they are generated.
+            </p>
+
           </div>
+
         ) : (
+
           <div className="bill-list">
 
             {bills.map((bill) => (
@@ -126,53 +261,62 @@ function Maintenance() {
                 key={bill.id}
               >
 
+                <div className="bill-icon">
+                  ₹
+                </div>
+
                 <div className="bill-main">
 
-                  <div>
-                    <h3>{bill.billingMonth}</h3>
+                  <div className="bill-heading">
 
-                    <p>
-                      Flat {bill.flatNumber}
-                    </p>
+                    <h3>
+                      {bill.billingMonth}
+                    </h3>
+
+                    <span
+                      className={`bill-status bill-status-${bill.status}`}
+                    >
+                      {getStatusLabel(bill.status)}
+                    </span>
+
                   </div>
 
-                  <div className="bill-amount">
-                    ₹{bill.amount}
+                  <p className="bill-flat">
+                    Flat {bill.flatNumber}
+                  </p>
+
+                  <div className="bill-meta">
+
+                    <span>
+                      Due {formatDate(bill.dueDate)}
+                    </span>
+
+                    {bill.paidAt && (
+                      <span>
+                        Paid {formatDate(bill.paidAt)}
+                      </span>
+                    )}
+
                   </div>
 
                 </div>
 
-                <div className="bill-details">
+                <div className="bill-amount-section">
 
-                  <span>
-                    Due:{" "}
-                    {new Date(
-                      bill.dueDate
-                    ).toLocaleDateString()}
-                  </span>
+                  <span>Amount</span>
 
-                  <span
-                    className={`bill-status bill-status-${bill.status}`}
-                  >
-                    {getStatusLabel(bill.status)}
-                  </span>
+                  <strong>
+                    ₹{formatAmount(bill.amount)}
+                  </strong>
 
                 </div>
-
-                {bill.paidAt && (
-                  <div className="paid-date">
-                    Paid on{" "}
-                    {new Date(
-                      bill.paidAt
-                    ).toLocaleDateString()}
-                  </div>
-                )}
 
               </div>
 
             ))}
 
           </div>
+
         )}
 
       </div>
