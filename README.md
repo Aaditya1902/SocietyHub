@@ -1,112 +1,51 @@
-\# SocietyHub 🏢
+# SocietyHub 
 
+> A full-stack apartment and society management platform designed to simplify resident services, visitor management, maintenance billing, complaints, and amenity bookings.
 
+## Overview
 
-A full-stack apartment and society management platform designed to digitize
+SocietyHub is a role-based society management platform built to digitize common apartment management workflows.
 
-resident services, visitor management, maintenance billing, complaints,
+The platform provides separate capabilities for residents, security guards, maintenance staff, and administrators. It uses a React frontend, ASP.NET Core Web API backend, PostgreSQL database, and JWT-based authentication.
 
-amenity bookings, and administrative operations.
+The project focuses on practical backend architecture, role-based authorization, database relationships, API design, and real-world business rules such as visitor approval and amenity booking conflict prevention.
 
+---
 
+## Key Features
 
-\## 🚀 Overview
+### 👤 Role-Based Access
 
+SocietyHub supports multiple user roles:
 
+- **Resident** — Manage visitors, complaints, maintenance bills, and amenity bookings
+- **Security Guard** — Manage visitor entry and exit
+- **Maintenance Staff** — Support maintenance-related workflows
+- **Admin** — Manage residents, maintenance bills, amenities, bookings, and society-level operations
 
-SocietyHub provides a centralized platform for residents and administrators
+Access to APIs is controlled using JWT authentication and role-based authorization.
 
-to manage day-to-day society activities through a role-based web application.
+---
 
+### Smart Visitor Management
 
+Residents can manage expected visitors through an approval-based workflow.
 
-The system follows a layered backend architecture using ASP.NET Core Web API
-
-and a React frontend, with PostgreSQL as the primary database.
-
-
-
-\## ✨ Key Features
-
-
-
-\### 🔐 Authentication \& Authorization
-
-\- JWT-based authentication
-
-\- Role-based access control
-
-\- Resident and Admin dashboards
-
-\- Protected frontend routes
-
-\- BCrypt password hashing
-
-
-
-\### 👥 Resident Management
-
-\- Register residents
-
-\- Assign residents to flats
-
-\- Track resident relationships
-
-\- View resident and flat information
-
-\- Admin resident management dashboard
-
-
-
-\### 🚪 Smart Visitor Management
-
-\- Create visitor requests
-
-\- Resident approval/rejection workflow
-
-\- QR-based visitor passes
-
-\- Security entry verification
-
-\- Security exit verification
-
-\- Visitor status tracking
-
-
-
-\*\*Visitor workflow:\*\*
-
-
+**Workflow:**
 
 ```text
-
-Visitor Request
-
-&#x20;     ↓
-
-&#x20;  Pending
-
-&#x20;     ↓
-
+Create Visitor
+      ↓
+Pending
+      ↓
 Resident Approval
-
-&#x20;     ↓
-
-&#x20;  Approved
-
-&#x20;     ↓
-
-&#x20;  QR Pass
-
-&#x20;     ↓
-
-Security Verification
-
-&#x20;     ↓
-
-&#x20;   Entered
-
-&#x20;     ↓
-
-&#x20;    Exited
-
+      ↓
+Approved
+      ↓
+Generate QR Pass
+      ↓
+Security Scans QR
+      ↓
+Visitor Entered
+      ↓
+Visitor Exited
