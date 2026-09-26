@@ -49,3 +49,49 @@ Security Scans QR
 Visitor Entered
       ↓
 Visitor Exited
+
+## Application Screenshots
+
+### Login
+
+![SocietyHub Login](screenshots/login.png)
+
+### Resident Dashboard
+
+![Resident Dashboard Overview](screenshots/resident-dashboard-1.png)
+
+![Resident Dashboard Activity](screenshots/resident-dashboard-2.png)
+
+### Visitor Management
+
+![Visitor Management](screenshots/visitors-1.png)
+
+![Visitor QR Pass](screenshots/visitors-2.png)
+
+### Complaint Management
+
+![Complaint Management](screenshots/complaints.png)
+
+### Maintenance Billing
+
+![Maintenance Billing](screenshots/maintenance.png)
+
+### Amenity Booking
+
+![Amenity Booking](screenshots/amenities-1.png)
+
+![My Amenity Bookings](screenshots/amenities-2.png)
+
+### Admin Dashboard
+
+![Admin Dashboard Overview](screenshots/admin-dashboard-1.png)
+
+![Admin Dashboard Activity](screenshots/admin-dashboard-2.png)
+
+### Resident Management
+
+![Admin Resident Management](screenshots/admin-residents.png)
+
+### API Documentation
+
+![SocietyHub Swagger API](screenshots/swagger-api.png)
